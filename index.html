@@ -1,10 +1,11 @@
+
 <!DOCTYPE html>
 
 <html lang="en">
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1" name="viewport"/>
-<title>Home Buying Fit Score MVP v11</title>
+<title>Home Buying Fit Score MVP v12</title>
 <style>
     :root{
       --bg:#f8fafc; --panel:#ffffff; --ink:#0f172a; --muted:#64748b; --line:#dbe3ef;
@@ -161,7 +162,7 @@
     }
 
 
-    /* Version 11 tabbed file-folder layout */
+    /* Version 12 tabbed file-folder layout */
     .tab-shell{position:sticky;top:0;z-index:25;background:rgba(248,250,252,.96);backdrop-filter:blur(8px);border:1px solid var(--line);border-radius:18px;padding:10px;margin-bottom:16px;box-shadow:0 10px 24px rgba(15,23,42,.08)}
     .tab-bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
     .tab-button{border-radius:12px;padding:11px 14px;background:#e2e8f0;color:#0f172a;font-weight:900;border:1px solid transparent;box-shadow:none}
@@ -176,6 +177,16 @@
     .quick-card strong{display:block;margin-bottom:5px;color:#0f172a}
     .quick-card button{margin-top:8px;width:100%;border-radius:10px}
     .folder-note{background:#ecfeff;border:1px solid #99f6e4;border-radius:12px;padding:10px 12px;color:#164e63;font-size:13px;margin-top:10px}
+
+    /* Version 12 listing text importer */
+    .extract-layout{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start}
+    .extract-preview{background:#f8fafc;border:1px solid var(--line);border-radius:14px;padding:12px;min-height:120px}
+    .extract-grid{display:grid;grid-template-columns:150px 1fr;gap:6px 10px;font-size:13px}
+    .extract-grid div:nth-child(odd){font-weight:900;color:#334155}
+    .confidence-pill{display:inline-block;border-radius:999px;padding:4px 8px;font-size:12px;font-weight:900;background:#dbeafe;color:#1d4ed8;margin:3px 4px 3px 0}
+    .extract-warning{background:#fef9c3;border:1px solid #fde68a;color:#854d0e;border-radius:12px;padding:10px;font-size:13px;margin-top:10px}
+    .mini-code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;background:#f1f5f9;border:1px solid #cbd5e1;border-radius:8px;padding:2px 5px}
+    @media(max-width:980px){.extract-layout{grid-template-columns:1fr}.extract-grid{grid-template-columns:1fr}}
     @media(max-width:760px){.tab-shell{position:static}.tab-bar{display:grid;grid-template-columns:repeat(2,1fr)}.tab-button{width:100%;padding:10px}.quick-actions{grid-template-columns:1fr}}
 
     @media(max-width:980px){.grid,.score-wrap,.form-grid,.form-grid.two,.form-grid.four,.kpis,.breakdown{grid-template-columns:1fr}.gauge{margin:auto}}
@@ -184,22 +195,23 @@
 </head>
 <body>
 <header>
-<h1>Home Buying Fit Score MVP v11</h1>
+<h1>Home Buying Fit Score MVP v12</h1>
 <p>Buyer-side scoring tool for Ray &amp; Ana: enter criteria + property details to estimate mortgage, St. Johns County property tax, HOA/CDD, score fit on a 1–10 scale, and return Go / Proceed with Caution / No-Go guidance.</p>
 </header>
 <noscript><main><section class="card wide"><h2>JavaScript is not running</h2><p class="muted">This MVP needs JavaScript for tabs, scoring, saving, import/export, and checkboxes. On iPad, open it in Safari/Chrome as a real web page rather than the Files preview, and confirm Safari JavaScript is enabled.</p></section></main></noscript>
 <main>
-<section aria-label="Version 11 folder navigation" class="tab-shell">
+<section aria-label="Version 12 folder navigation" class="tab-shell">
 <div class="tab-bar" role="tablist">
 <button class="tab-button active" data-tab="dashboard" onclick="openMvpTab('dashboard', this)">Dashboard</button>
 <button class="tab-button" data-tab="property" onclick="openMvpTab('property', this)">Property Entry</button>
+<button class="tab-button" data-tab="import" onclick="openMvpTab('import', this)">Listing Import</button>
 <button class="tab-button" data-tab="criteria" onclick="openMvpTab('criteria', this)">Buyer Criteria</button>
 <button class="tab-button" data-tab="ranked" onclick="openMvpTab('ranked', this)">Ranked Homes</button>
 <button class="tab-button" data-tab="realtor" onclick="openMvpTab('realtor', this)">Realtor Export</button>
 <button class="tab-button" data-tab="data" onclick="openMvpTab('data', this)">Saved Data</button>
 <button class="tab-button" data-tab="help" onclick="openMvpTab('help', this)">Help / Roadmap</button>
 </div>
-<div class="tab-hint">Version 11 uses a file-folder layout: open only the section you need, while all calculations and saved data continue to work behind the scenes.</div>
+<div class="tab-hint">Version 12 uses a file-folder layout and adds a Listing Import tab: paste listing text, extract likely facts, review, then push into Property Entry.</div>
 </section>
 <div class="tab-panel active" id="dashboard">
 <section class="card wide">
@@ -246,9 +258,10 @@
 </div>
 </section>
 <section class="card wide">
-<h2>Recommended Version 11 workflow</h2>
+<h2>Recommended Version 12 workflow</h2>
 <div class="quick-actions">
 <div class="quick-card"><strong>1. Score or inspect a home</strong><span class="muted">Use the Property Entry tab to load a saved listing or enter a new one.</span><button onclick="openMvpTab('property')">Open Property Entry</button></div>
+<div class="quick-card"><strong>Import listing text</strong><span class="muted">Paste a listing URL and copied listing facts, then let the app extract fields for review.</span><button onclick="openMvpTab('import')">Open Listing Import</button></div>
 <div class="quick-card"><strong>2. Tune the buyer profile</strong><span class="muted">Use Buyer Criteria for payment, tax, veteran/homestead, and preference weights.</span><button onclick="openMvpTab('criteria')">Open Criteria</button></div>
 <div class="quick-card"><strong>3. Compare the shortlist</strong><span class="muted">Use Ranked Homes for score, monthly breakdown, viewed status, and remove/hide.</span><button onclick="openMvpTab('ranked')">Open Ranked Homes</button></div>
 <div class="quick-card"><strong>4. Send showing list</strong><span class="muted">Use Realtor Export to pick homes and create a CSV or print/PDF report.</span><button onclick="openMvpTab('realtor')">Open Realtor Export</button></div>
@@ -256,6 +269,35 @@
 <div class="folder-note"><strong>Design recommendation:</strong> keep daily-use tabs first and deeper maintenance tabs last. That prevents the tool from feeling like one long spreadsheet.</div>
 </section>
 </div>
+
+<div class="tab-panel" id="import">
+<section class="card wide input-area">
+<h2>Listing Import / Fact Extractor</h2>
+<p class="muted">Version 12 does not scrape Zillow/Realtor/Redfin automatically. Instead, paste the listing link and copy/paste visible listing text or remarks. The browser runs a local extraction pass, shows what it found, and lets you push the reviewed facts into Property Entry.</p>
+<div class="extract-layout">
+<div>
+<label>Listing URL</label>
+<input id="importSourceUrl" type="url" placeholder="Paste Zillow/Realtor/MLS listing link">
+<label style="margin-top:12px">Paste listing facts / remarks</label>
+<textarea id="listingTextInput" style="min-height:330px" placeholder="Paste copied listing details here. Helpful text includes price, beds, baths, sqft, year built, HOA, CDD, subdivision/community, remarks, patio/fence/water-view language."></textarea>
+<div class="actions">
+<button class="primary" onclick="extractListingFacts()">Extract facts</button>
+<button class="secondary" onclick="applyExtractedFacts(false)">Use in Property Entry</button>
+<button class="secondary" onclick="applyExtractedFacts(true)">Use + score</button>
+<button onclick="clearListingImport()">Clear import</button>
+</div>
+<div class="extract-warning"><strong>Good MVP workflow:</strong> copy listing facts from the public page, paste them here, review the extracted fields, then save the final property. This avoids building a website scraper and keeps you in control of the data.</div>
+</div>
+<div>
+<h3>Extracted preview</h3>
+<div id="extractStatus" class="status">No listing text extracted yet.</div>
+<div id="extractPreview" class="extract-preview"><span class="muted">After extraction, likely facts will appear here for review.</span></div>
+<div class="extract-warning"><strong>Review required:</strong> HOA, CDD, baths, lake/water view, fence, and patio language can be inconsistent across listing sites. Confirm these before offer.</div>
+</div>
+</div>
+</section>
+</div>
+
 <div class="tab-panel" id="property">
 <section class="card wide input-area">
 <h2>Property Entry</h2>
@@ -354,7 +396,7 @@
 <div class="tab-panel" id="ranked">
 <section class="card wide">
 <h2>Ranked Tracked Properties</h2>
-<p class="muted">These rows are rescored live using your current criteria above. Version 11 uses a cleaner tabbed layout so you can focus on one workflow area at a time.</p>
+<p class="muted">These rows are rescored live using your current criteria above. Version 12 uses a cleaner tabbed layout so you can focus on one workflow area at a time.</p>
 <div class="table-wrap responsive-rank">
 <table id="rankedTable">
 <thead><tr><th>Rank</th><th>Score</th><th>Property</th><th>Listing / Features</th><th>Offer &amp; Loan</th><th>Monthly Breakdown</th><th>Status</th><th>Actions</th></tr></thead>
@@ -1341,10 +1383,10 @@ function decisionPill(cls, text, compact=false){
 
 function decisionShortLabel(text){
   const t = String(text || '').toUpperCase();
-  if(t.includes('NO-GO')) return 'NO-GO';
+  if(t.includes('GO') && !t.includes('NO-GO')) return 'GO';
   if(t.includes('CAUTION')) return 'CAUTION';
   if(t.includes('WATCH') || t.includes('NEGOTIATE')) return 'WATCH';
-  if(t === 'GO' || t.startsWith('GO ')) return 'GO';
+  if(t.includes('NO-GO')) return 'NO-GO';
   return String(text || '').slice(0,12);
 }
 
@@ -1493,6 +1535,219 @@ function mergeAndDeduplicateProperties(...lists){
     if(mergedUrlKey) urlToIndex.set(mergedUrlKey, idx);
   });
   return merged;
+}
+
+
+// -----------------------------
+// Version 12: local listing text extractor
+// -----------------------------
+let lastExtractedProperty = null;
+
+function parseCurrencyValue(s){
+  if(!s) return 0;
+  const m = String(s).match(/\$?\s*([0-9]{1,3}(?:,[0-9]{3})+|[0-9]+)(?:\.\d+)?\s*([kKmM])?/);
+  if(!m) return 0;
+  let n = parseFloat(m[1].replace(/,/g,''));
+  if(m[2]){
+    const unit = m[2].toLowerCase();
+    if(unit === 'k') n *= 1000;
+    if(unit === 'm') n *= 1000000;
+  }
+  return Math.round(n);
+}
+
+function firstMatch(text, patterns){
+  for(const re of patterns){
+    const m = text.match(re);
+    if(m) return m;
+  }
+  return null;
+}
+
+function numberFromMatch(m, idx=1){
+  if(!m || !m[idx]) return 0;
+  return parseFloat(String(m[idx]).replace(/,/g,''));
+}
+
+function addressFromListingUrl(url){
+  if(!url) return '';
+  try{
+    const u = new URL(url);
+    const parts = u.pathname.split('/').filter(Boolean);
+    const idx = parts.findIndex(p => p.toLowerCase() === 'homedetails');
+    let slug = idx >= 0 ? parts[idx+1] : parts[0];
+    if(!slug) return '';
+    slug = decodeURIComponent(slug).replace(/_zpid.*$/i,'').replace(/\.html?$/i,'');
+    let words = slug.split('-').filter(Boolean);
+    if(words.length < 3) return '';
+    let out = words.join(' ')
+      .replace(/\bSt\b/gi,'St.')
+      .replace(/\bFl\b/g,'FL')
+      .replace(/\bUsa\b/gi,'USA')
+      .replace(/\s+/g,' ')
+      .trim();
+    out = out.replace(/\s(FL)\s(\d{5})$/,' $1 $2');
+    return out;
+  }catch(e){ return ''; }
+}
+
+function cleanOneLine(s){ return String(s||'').replace(/\s+/g,' ').trim(); }
+
+function inferAddressFromText(text, url){
+  const urlAddress = addressFromListingUrl(url);
+  if(urlAddress) return urlAddress;
+  const lines = String(text||'').split(/\n+/).map(cleanOneLine).filter(Boolean).slice(0,12);
+  for(const line of lines){
+    if(/\b\d{1,6}\b/.test(line) && /\b(FL|Florida)\b/i.test(line) && /\b\d{5}\b/.test(line)) return line;
+  }
+  for(const line of lines){
+    if(/\b\d{1,6}\b/.test(line) && /\b(Street|St\.?|Avenue|Ave\.?|Road|Rd\.?|Drive|Dr\.?|Lane|Ln\.?|Way|Court|Ct\.?|Circle|Cir\.?|Trail|Blvd\.?|Boulevard|Place|Pl\.)\b/i.test(line)) return line;
+  }
+  return '';
+}
+
+function inferCommunity(text){
+  const m = firstMatch(text, [
+    /(?:subdivision|community|neighborhood)\s*[:\-]\s*([^\n\r|,;]{2,60})/i,
+    /\bin\s+(?:the\s+)?([A-Z][A-Za-z0-9 '&.-]{2,45})\s+(?:community|neighborhood|subdivision)\b/,
+    /\b(?:located|nestled)\s+in\s+(?:the\s+)?([A-Z][A-Za-z0-9 '&.-]{2,45})\b/
+  ]);
+  return m ? cleanOneLine(m[1]).replace(/\.$/,'') : '';
+}
+
+function extractHoaMonthly(text){
+  const annual = firstMatch(text, [/(?:HOA|association fee|homeowners association)\D{0,25}\$\s*([0-9,]+(?:\.\d+)?)\s*(?:annually|annual|year|yr|\/yr)/i]);
+  if(annual) return Math.round(parseCurrencyValue(annual[1]) / 12);
+  const monthly = firstMatch(text, [/(?:HOA|association fee|homeowners association)\D{0,25}\$\s*([0-9,]+(?:\.\d+)?)\s*(?:monthly|month|mo|\/mo)/i, /\$\s*([0-9,]+(?:\.\d+)?)\s*(?:monthly|month|mo|\/mo)\D{0,20}(?:HOA|association)/i]);
+  return monthly ? parseCurrencyValue(monthly[1]) : 0;
+}
+
+function extractCddAnnual(text){
+  const noCdd = /\b(no\s+CDD|CDD\s*[:\-]?\s*(?:none|no|0|\$0))\b/i.test(text);
+  if(noCdd) return 0;
+  const annual = firstMatch(text, [/(?:CDD|community development district)\D{0,25}\$\s*([0-9,]+(?:\.\d+)?)\s*(?:annually|annual|year|yr|\/yr)?/i]);
+  return annual ? parseCurrencyValue(annual[1]) : 0;
+}
+
+function inferYesNoFeature(text, yesPatterns, noPatterns=[]){
+  for(const re of noPatterns){ if(re.test(text)) return 'no'; }
+  for(const re of yesPatterns){ if(re.test(text)) return 'yes'; }
+  return 'unknown';
+}
+
+function inferLakeValue(text){
+  if(/\b(lakefront|waterfront|on\s+the\s+lake|lake\s+view|water\s+view|water views)\b/i.test(text)) return 'lake';
+  if(/\b(pond|retention pond|preserve pond)\b/i.test(text)) return 'pond';
+  return 'none';
+}
+
+function extractListingFacts(){
+  const url = document.getElementById('importSourceUrl')?.value || '';
+  const rawText = document.getElementById('listingTextInput')?.value || '';
+  const text = cleanOneLine(rawText);
+  const combined = `${rawText}\n${url}`;
+  if(!url && !rawText.trim()){
+    alert('Paste a listing URL and/or listing text first.');
+    return;
+  }
+
+  const priceM = firstMatch(combined, [/(?:list(?:ing)? price|price|listed for|asking)\D{0,20}\$\s*([0-9,]+(?:\.\d+)?[kKmM]?)/i, /\$\s*([0-9]{3},[0-9]{3,}(?:\.\d+)?|[0-9]+[kKmM])\b/]);
+  const sqftM = firstMatch(combined, [/([0-9]{1,2},?[0-9]{3,5})\s*(?:sq\.?\s*ft\.?|sqft|square feet)\b/i, /(?:living area|home size)\D{0,20}([0-9]{1,2},?[0-9]{3,5})/i]);
+  const bedsM = firstMatch(combined, [/([0-9]+(?:\.0)?)\s*(?:bedrooms|beds|bd|br)\b/i, /(?:beds?|bedrooms?)\D{0,12}([0-9]+(?:\.0)?)/i]);
+  const bathsM = firstMatch(combined, [/([0-9]+(?:\.5|\.0)?)\s*(?:bathrooms|baths|ba)\b/i, /(?:baths?|bathrooms?)\D{0,12}([0-9]+(?:\.5|\.0)?)/i]);
+  const fullHalfM = firstMatch(combined, [/([0-9]+)\s*full\s*(?:bath|bathroom)s?\D{0,20}([0-9]+)\s*half/i, /([0-9]+)\s*full\D{0,20}([0-9]+)\s*partial/i]);
+  const yearM = firstMatch(combined, [/(?:built in|year built|built)\D{0,12}((?:19|20)\d{2})/i, /\b((?:19|20)\d{2})\s*(?:built|construction)\b/i]);
+
+  const totalBaths = fullHalfM ? (parseFloat(fullHalfM[1]) + parseFloat(fullHalfM[2]) * 0.5) : numberFromMatch(bathsM);
+  const fullBaths = fullHalfM ? parseFloat(fullHalfM[1]) : (totalBaths ? Math.floor(totalBaths) : 0);
+  const halfBaths = fullHalfM ? parseFloat(fullHalfM[2]) : ((totalBaths % 1) >= 0.5 ? 1 : 0);
+  const listingPrice = priceM ? parseCurrencyValue(priceM[1]) : 0;
+
+  const p = {
+    address: inferAddressFromText(rawText, url),
+    community: inferCommunity(rawText),
+    sqft: numberFromMatch(sqftM),
+    builtYear: yearM ? yearM[1] : '',
+    listingPrice: listingPrice,
+    recommendedOffer: listingPrice ? Math.max(0, Math.round((listingPrice * 0.97)/1000)*1000) : 0,
+    hoaMonthly: extractHoaMonthly(rawText),
+    cddAnnual: extractCddAnnual(rawText),
+    bedrooms: numberFromMatch(bedsM),
+    fullBaths: fullBaths,
+    halfBaths: halfBaths,
+    oneStory: inferYesNoFeature(rawText, [/\b(one[-\s]?story|single[-\s]?story|ranch|single level)\b/i], [/\b(two[-\s]?story|2[-\s]?story|second floor|upstairs)\b/i]),
+    coveredPatio: inferYesNoFeature(rawText, [/\b(covered patio|covered lanai|screened lanai|screened patio|covered porch|screened porch)\b/i]),
+    fence: inferYesNoFeature(rawText, [/\b(fenced|fully fenced|fenced yard|privacy fence)\b/i], [/\b(no fence|not fenced|unfenced)\b/i]),
+    wfhSpace: inferYesNoFeature(rawText, [/\b(office|home office|flex room|den|study|bonus room)\b/i]),
+    lakefront: inferLakeValue(rawText),
+    sourceUrl: url,
+    viewed: false,
+    driveBy: false,
+    buyerNotes: 'Imported from pasted listing text. Review extracted fields before relying on the score.',
+    verifyBeforeOffer: 'Verify HOA, CDD/non-ad valorem, tax reassessment, insurance, flood zone, bath count, patio/fence, and water-view details in MLS/tax records.'
+  };
+
+  const confidence = [];
+  if(p.address) confidence.push('address');
+  if(p.listingPrice) confidence.push('price');
+  if(p.sqft) confidence.push('sqft');
+  if(p.bedrooms) confidence.push('beds');
+  if(p.fullBaths || p.halfBaths) confidence.push('baths');
+  if(p.builtYear) confidence.push('year');
+  if(p.hoaMonthly) confidence.push('HOA');
+  if(p.cddAnnual || /no\s+CDD/i.test(rawText)) confidence.push('CDD');
+  if(p.coveredPatio !== 'unknown') confidence.push('patio');
+  if(p.fence !== 'unknown') confidence.push('fence');
+  if(p.lakefront !== 'none') confidence.push('water view');
+
+  lastExtractedProperty = p;
+  renderExtractionPreview(p, confidence);
+}
+
+function renderExtractionPreview(p, confidence){
+  const status = document.getElementById('extractStatus');
+  const preview = document.getElementById('extractPreview');
+  if(!preview) return;
+  status.innerHTML = `Found ${confidence.length} likely fields. ${confidence.map(x=>`<span class="confidence-pill">${escapeHtml(x)}</span>`).join('')}`;
+  const rows = [
+    ['Address', p.address || 'Not found'],
+    ['Community', p.community || 'Not found'],
+    ['Listing price', p.listingPrice ? money(p.listingPrice) : 'Not found'],
+    ['Suggested offer', p.recommendedOffer ? money(p.recommendedOffer) : 'Not found'],
+    ['Sqft', p.sqft ? Number(p.sqft).toLocaleString() : 'Not found'],
+    ['Year built', p.builtYear || 'Not found'],
+    ['Beds / Baths', `${p.bedrooms || '?'} BR / ${p.fullBaths || '?'}${p.halfBaths ? '.5' : ''} BA`],
+    ['HOA monthly', p.hoaMonthly ? money(p.hoaMonthly) : 'Not found / 0'],
+    ['CDD annual', p.cddAnnual ? money(p.cddAnnual) : 'Not found / 0'],
+    ['Covered patio', p.coveredPatio],
+    ['Fence', p.fence],
+    ['WFH / office', p.wfhSpace],
+    ['Lake / water view', lakeLabel(p.lakefront)],
+    ['Source URL', p.sourceUrl ? `<span class="mini-code">${escapeHtml(p.sourceUrl.slice(0,80))}${p.sourceUrl.length>80?'…':''}</span>` : 'Not provided']
+  ];
+  preview.innerHTML = '<div class="extract-grid">' + rows.map(([k,v])=>`<div>${escapeHtml(k)}</div><div>${v}</div>`).join('') + '</div>';
+}
+
+function applyExtractedFacts(scoreAfter=false){
+  if(!lastExtractedProperty){
+    alert('Extract facts first, then apply them to Property Entry.');
+    return;
+  }
+  loadProperty(lastExtractedProperty);
+  openMvpTab('property');
+  if(scoreAfter) scoreCurrent();
+}
+
+function clearListingImport(){
+  const url = document.getElementById('importSourceUrl');
+  const txt = document.getElementById('listingTextInput');
+  if(url) url.value = '';
+  if(txt) txt.value = '';
+  lastExtractedProperty = null;
+  const status = document.getElementById('extractStatus');
+  const preview = document.getElementById('extractPreview');
+  if(status) status.innerText = 'No listing text extracted yet.';
+  if(preview) preview.innerHTML = '<span class="muted">After extraction, likely facts will appear here for review.</span>';
 }
 
 function populateSelect(){
