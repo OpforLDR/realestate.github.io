@@ -5,7 +5,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1" name="viewport"/>
-<title>HomeTracker MVP V16C Production</title>
+<title>HomeTracker MVP v16B.1 Mobile Layout Hotfix Test v2 Compact Tabs</title>
 <style>
     :root{
       --bg:#f8fafc; --panel:#ffffff; --ink:#0f172a; --muted:#64748b; --line:#dbe3ef;
@@ -621,8 +621,8 @@
 <header>
   <div class="hero-header">
     <div class="hero-copy">
-      <h1>HomeTracker MVP V16C</h1>
-      <p><span id="headerWelcome">Welcome to HomeTracker.</span> Buyer-side home comparison for Ray &amp; Ana with login-first access, role-based views, shared Firestore sync, QA-safe testing, self-service password reset before sign-in, and AI Decision Advisor production workflow.</p>
+      <h1>HomeTracker MVP v16B.1</h1>
+      <p><span id="headerWelcome">Welcome to HomeTracker.</span> Buyer-side home comparison for Ray &amp; Ana with login-first access, role-based views, shared Firestore sync, QA-safe testing, self-service password reset before sign-in, and AI Decision Advisor Cloud Function testing.</p>
     </div>
     <div class="hero-image-card" aria-label="Couple reviewing homes with a realtor">
       <svg viewBox="0 0 420 190" role="img" aria-labelledby="heroImageTitle heroImageDesc" xmlns="http://www.w3.org/2000/svg">
@@ -674,7 +674,7 @@
         <h2>Sign in to HomeTracker</h2>
         <p class="muted">Approved users must sign in before viewing homes, rankings, buyer criteria, or realtor exports.</p>
       </div>
-      <span class="role-badge">V16C</span>
+      <span class="role-badge">V16B.1</span>
     </div>
     <div class="login-grid">
       <div><label>Email</label><input id="cloudEmail" type="email" autocomplete="username" placeholder="HomeTracker email"></div>
@@ -1059,10 +1059,10 @@
 
 <div class="tab-panel" id="ai">
 <section class="card wide">
-<div class="card-title"><h2>AI Decision Advisor</h2><button class="help-button" onclick="showHelp('ai')">Help</button></div>
+<div class="card-title"><h2>AI Decision Advisor — Cloud Function Test</h2><button class="help-button" onclick="showHelp('ai')">Help</button></div>
 <div class="ai-planning-grid">
   <div>
-    <div class="notes"><strong>V16C production mode:</strong> this screen packages finalist homes, tie-breakers, and score data, then calls a secure Firebase Cloud Function. The OpenAI API key stays server-side in the function and is never stored inside this HTML file.</div>
+    <div class="notes"><strong>V16B test mode:</strong> this screen packages finalist homes, tie-breakers, and score data, then calls a secure Firebase Cloud Function. The OpenAI API key must stay server-side in the function, never inside this HTML file.</div>
     <h3>Buyer-side goal</h3>
     <p class="muted">Help Ray and Ana compare the final favorite homes using both the HomeTracker score and real-life tie-breakers that matter when living with the purchase for the life of the loan.</p>
     <div class="advisor-chip-row">
@@ -1094,7 +1094,7 @@
     </div>
     <div class="ai-action-row">
       <button type="button" onclick="previewAiAdvisorPayload()">Preview AI payload</button>
-      <button class="primary" type="button" onclick="runAiAdvisorCloudFunctionTest()">Run AI Advisor</button>
+      <button class="primary" type="button" onclick="runAiAdvisorCloudFunctionTest()">Run AI Advisor Cloud Function Test</button>
       <button type="button" onclick="clearAiAdvisorOutput()">Clear AI output</button>
     </div>
     <div id="aiAdvisorStatus" class="ai-status">Ready. Deploy the Cloud Function, then run a test against selected finalists.</div>
@@ -1135,7 +1135,7 @@
   <button onclick="returnFromHelp()">Return</button>
 </div>
 <div id="help-overview" class="help-topic active">
-  <div class="notes"><strong>HomeTracker V16C:</strong> login-first access, role-based tab visibility, QA Tester read-only cloud UI, self-service password reset before sign-in, cleaner header layout, responsive buyer/realtor image, AI Advisor production workflow, page-specific help, a one-hour inactivity sign-out timer, Firebase App Check monitoring support, and Node.js 22 Cloud Function runtime cleanup.</div>
+  <div class="notes"><strong>HomeTracker V16B:</strong> login-first access, role-based tab visibility, QA Tester read-only cloud UI, self-service password reset before sign-in, cleaner header layout, responsive buyer/realtor image, AI Advisor Cloud Function testing, page-specific help, a one-hour inactivity sign-out timer, and Firebase App Check monitoring support.</div>
   <div class="notes"><strong>Roadmap:</strong> deploy/test the AI Advisor Cloud Function, add structured recommendation output, add optional saved AI reports, realtor read-only access, tighter admin tools, API/MLS automation planning, map/comparable sales views, and lender-specific assumptions.</div>
 </div>
 <div id="help-dashboard" class="help-topic"><div class="notes"><strong>Dashboard:</strong> shows the signed-in user, role, tracked-home count, and quick status. Admin sees the most tools; user and realtor views are limited by role.</div></div>
@@ -1147,10 +1147,10 @@
 <div id="help-ranked" class="help-topic"><div class="notes"><strong>Ranked Homes:</strong> compares active homes using the current criteria. Admin/user roles can update flags and load/edit. Realtor role is limited to viewing and export workflow.</div></div>
 <div id="help-realtor" class="help-topic"><div class="notes"><strong>Realtor Export:</strong> select homes for Julius or another realtor, choose export fields, and create a CSV or print/PDF showing request.</div></div>
 <div id="help-data" class="help-topic"><div class="notes"><strong>Saved Data:</strong> admin maintenance area for JSON backup/restore, merge/replace behavior, hidden homes, and manual saved entries. Leave this alone unless intentionally managing backups.</div></div>
-<div id="help-access" class="help-topic"><div class="notes"><strong>Access setup:</strong> create the Firebase Auth user, add the user to the household members collection with the desired role, then sign in. Roles for V16C are admin, user/editor, qa, and realtor. QA is “QA Tester — read-only cloud access” for safe import/scoring/display testing without cloud writes. Users can also request their own password reset email from the login screen or signed-in session bar.</div></div>
+<div id="help-access" class="help-topic"><div class="notes"><strong>Access setup:</strong> create the Firebase Auth user, add the user to the household members collection with the desired role, then sign in. Roles for V16B are admin, user/editor, qa, and realtor. QA is “QA Tester — read-only cloud access” for safe import/scoring/display testing without cloud writes. Users can also request their own password reset email from the login screen or signed-in session bar.</div></div>
 <div id="help-session" class="help-topic"><div class="notes"><strong>Session timeout:</strong> V15B signs users out after 60 minutes with no activity inside HomeTracker. A five-minute warning appears at 55 minutes. Activity on outside listing sites does not reset the HomeTracker timer, so one hour was chosen to reduce inconvenience while researching homes.</div></div>
 <div id="help-password" class="help-topic"><div class="notes"><strong>Password reset:</strong> users can request a Firebase password reset email from the login screen by entering their email and clicking Forgot / reset password. Resetting an existing user password does not change that user’s Firebase UID.</div></div>
-<div id="help-ai" class="help-topic"><div class="notes"><strong>AI Advisor:</strong> V16C packages selected finalist homes and tie-breaker priorities, previews the payload, and calls a secure Firebase Cloud Function. The function should validate signed-in access and role before returning buyer-side decision support. Tie-breaker fields use dropdown suggestions, but users can type a custom item when the list does not cover what matters. The output can be opened as a clean print/PDF buyer report.</div></div>
+<div id="help-ai" class="help-topic"><div class="notes"><strong>AI Advisor:</strong> V16B packages selected finalist homes and tie-breaker priorities, previews the payload, and calls a secure Firebase Cloud Function. The function should validate signed-in access and role before returning buyer-side decision support. Tie-breaker fields use dropdown suggestions, but users can type a custom item when the list does not cover what matters. The output can be opened as a clean print/PDF buyer report.</div></div>
 <div id="help-mls" class="help-topic"><div class="notes"><strong>MLS/API planning:</strong> capture API provider, authentication method, allowed data fields, image/media access, usage limits, caching rules, attribution requirements, and whether a backend/proxy is required.</div></div>
 <p class="footer">Payment model is an estimate only. Verify tax reassessment, homestead/portability, insurance, HOA, CDD, VA eligibility, flood zone, and lender rules before making an offer.</p>
 </section>
