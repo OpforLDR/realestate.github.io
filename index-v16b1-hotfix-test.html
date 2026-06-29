@@ -5,7 +5,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1" name="viewport"/>
-<title>HomeTracker MVP v16B.1 Mobile Layout Hotfix Test v2 Compact Tabs</title>
+<title>HomeTracker MVP v16B.1 Mobile Layout Hotfix Test</title>
 <style>
     :root{
       --bg:#f8fafc; --panel:#ffffff; --ink:#0f172a; --muted:#64748b; --line:#dbe3ef;
@@ -514,103 +514,6 @@
   }
   #property .compact-grid{
     grid-template-columns:1fr;
-  }
-}
-
-
-/* V16B.1 Mobile Layout Hotfix Test v2 - Compact Tabs
-   Purpose: reduce iPad/iPhone portrait navigation height while keeping uniform tap targets.
-   Logic/Auth/Firestore/AI code unchanged.
-*/
-@media(min-width:601px) and (max-width:900px){
-  .tab-shell{
-    padding:9px 10px;
-    margin-bottom:12px;
-  }
-  .tab-bar{
-    grid-template-columns:repeat(3,minmax(0,1fr)) !important;
-    gap:7px;
-  }
-  .tab-button{
-    min-height:42px !important;
-    padding:8px 9px !important;
-    font-size:12px !important;
-    line-height:1.15;
-    border-radius:11px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    text-align:center;
-  }
-  .nav-utility{
-    grid-column:1 / -1 !important;
-    display:grid !important;
-    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
-    gap:7px;
-    margin-top:1px;
-  }
-  .session-timer-pill,
-  .theme-toggle-button{
-    min-height:40px !important;
-    padding:8px 9px !important;
-    font-size:12px !important;
-    line-height:1.15;
-    border-radius:999px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    text-align:center;
-  }
-  .tab-hint{
-    margin-top:7px;
-    font-size:11px;
-    line-height:1.25;
-  }
-}
-
-@media(max-width:600px){
-  .tab-shell{
-    padding:9px;
-    margin-bottom:12px;
-  }
-  .tab-bar{
-    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
-    gap:7px;
-  }
-  .tab-button{
-    min-height:44px !important;
-    padding:8px 8px !important;
-    font-size:13px !important;
-    line-height:1.15;
-    border-radius:11px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    text-align:center;
-  }
-  .nav-utility{
-    grid-column:1 / -1 !important;
-    display:grid !important;
-    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
-    gap:7px;
-    margin-top:1px;
-  }
-  .session-timer-pill,
-  .theme-toggle-button{
-    min-height:42px !important;
-    padding:8px 8px !important;
-    font-size:13px !important;
-    line-height:1.15;
-    border-radius:999px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    text-align:center;
-  }
-  .tab-hint{
-    margin-top:7px;
-    font-size:11px;
-    line-height:1.25;
   }
 }
 
@@ -2739,13 +2642,7 @@ function renderPaymentBreakdown(s){
 
 function renderBreakdown(components){
   const el = document.getElementById('breakdown');
-  if(!el) return;
-  const activeComponents = (components || []).filter(([, , weight]) => (+weight || 0) > 0);
-  if(!activeComponents.length){
-    el.innerHTML = '<div class="notes muted">No active scoring preferences are selected. Open Buyer Criteria and check the items you want included in the score.</div>';
-    return;
-  }
-  el.innerHTML = activeComponents.map(([name,score,weight])=>{
+  el.innerHTML = components.map(([name,score,weight])=>{
     const pct = Math.round(score*100);
     const contribution = Math.round((score * (+weight || 0)) * 10) / 10;
     return `<div class="break-item"><strong>${escapeHtml(name)}</strong><div class="bar" title="${pct}% fit x ${+weight || 0} selected weight points"><span style="width:${pct}%"></span></div><span>${pct}%<br><small>${contribution} pts</small></span></div>`;
@@ -2991,9 +2888,7 @@ function buildAiAdvisorPayload(){
     buyerNotes: aiLongText(row.p.buyerNotes, 1400),
     verifyBeforeOffer: aiLongText(row.p.verifyBeforeOffer, 1400),
     verificationSummary: buildAiVerificationSummary(row),
-    scoreComponents: (row.s.components || [])
-      .filter(([, , weight]) => (+weight || 0) > 0)
-      .map(([name,score,weight]) => ({ name, fitPct: Math.round((score || 0) * 100), weight: +weight || 0 }))
+    scoreComponents: (row.s.components || []).map(([name,score,weight]) => ({ name, fitPct: Math.round((score || 0) * 100), weight: +weight || 0 }))
   }));
   return {
     schemaVersion: '16B',

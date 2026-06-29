@@ -2739,13 +2739,7 @@ function renderPaymentBreakdown(s){
 
 function renderBreakdown(components){
   const el = document.getElementById('breakdown');
-  if(!el) return;
-  const activeComponents = (components || []).filter(([, , weight]) => (+weight || 0) > 0);
-  if(!activeComponents.length){
-    el.innerHTML = '<div class="notes muted">No active scoring preferences are selected. Open Buyer Criteria and check the items you want included in the score.</div>';
-    return;
-  }
-  el.innerHTML = activeComponents.map(([name,score,weight])=>{
+  el.innerHTML = components.map(([name,score,weight])=>{
     const pct = Math.round(score*100);
     const contribution = Math.round((score * (+weight || 0)) * 10) / 10;
     return `<div class="break-item"><strong>${escapeHtml(name)}</strong><div class="bar" title="${pct}% fit x ${+weight || 0} selected weight points"><span style="width:${pct}%"></span></div><span>${pct}%<br><small>${contribution} pts</small></span></div>`;
@@ -2991,9 +2985,7 @@ function buildAiAdvisorPayload(){
     buyerNotes: aiLongText(row.p.buyerNotes, 1400),
     verifyBeforeOffer: aiLongText(row.p.verifyBeforeOffer, 1400),
     verificationSummary: buildAiVerificationSummary(row),
-    scoreComponents: (row.s.components || [])
-      .filter(([, , weight]) => (+weight || 0) > 0)
-      .map(([name,score,weight]) => ({ name, fitPct: Math.round((score || 0) * 100), weight: +weight || 0 }))
+    scoreComponents: (row.s.components || []).map(([name,score,weight]) => ({ name, fitPct: Math.round((score || 0) * 100), weight: +weight || 0 }))
   }));
   return {
     schemaVersion: '16B',
