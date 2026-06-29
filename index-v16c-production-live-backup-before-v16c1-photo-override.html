@@ -615,33 +615,7 @@
 }
 
     @media print{header,.actions,.input-area,.table-wrap button{display:none}main{max-width:none}.card{box-shadow:none;break-inside:avoid}}
-  
-/* V16C.1 manual home photo override */
-.photo-upload-controls{
-  margin-top:8px;
-  display:grid;
-  gap:6px;
-}
-.photo-upload-actions{
-  display:flex;
-  flex-wrap:wrap;
-  gap:8px;
-  align-items:center;
-}
-.photo-upload-actions button{
-  width:auto;
-}
-.small-note{
-  font-size:.85rem;
-}
-#propertyPhotoPreview{
-  cursor:pointer;
-}
-#propertyPhotoPreview.photo-drag-over{
-  outline:3px dashed currentColor;
-  outline-offset:3px;
-}
-</style>
+  </style>
 </head>
 <body class="signed-out">
 <header>
@@ -861,9 +835,6 @@
 <div>
 <label>Home photo URL</label>
 <input id="photoUrl" placeholder="Paste a direct image URL for the home photo" type="url" oninput="updatePropertyPhotoPreview()"/>
-<input id="photoOverrideDataUrl" type="hidden"/>
-<input id="photoOverrideName" type="hidden"/>
-<input id="photoOverrideUpdatedAt" type="hidden"/>
 
 </div>
 <div class="checkbox-box favorite-box" data-save-home="true"><label class="checkbox-label"><input id="favored" type="checkbox"/> ⭐ Favored Property / Top Pick</label></div>
@@ -875,15 +846,7 @@
 </div>
 <div class="photo-preview-card">
 <label>Home photo preview</label>
-<div id="propertyPhotoPreview" class="home-photo-thumb large photo-empty" tabindex="0" role="button" aria-label="Home photo preview. Drop or upload an actual home photo override."><span>No photo yet</span></div>
-<div class="photo-upload-controls">
-  <input id="photoOverrideFile" type="file" accept="image/*" style="display:none"/>
-  <div class="photo-upload-actions">
-    <button class="secondary" type="button" onclick="document.getElementById('photoOverrideFile').click()">Upload / drop actual home photo</button>
-    <button class="secondary" type="button" onclick="clearPhotoOverride()">Clear uploaded photo</button>
-  </div>
-  <div id="photoOverrideStatus" class="muted small-note">Optional: upload a real photo when the listing image is generic. Uploaded photo overrides the URL preview.</div>
-</div>
+<div id="propertyPhotoPreview" class="home-photo-thumb large photo-empty"><span>No photo yet</span></div>
 </div>
 </div>
 <div class="compact-grid" style="margin-top:12px">
@@ -2625,7 +2588,7 @@ function getPropertyFromForm(){
     bedrooms:num('bedrooms'), fullBaths:num('fullBaths'), halfBaths:num('halfBaths'), oneStory:val('oneStory'),
     coveredPatio:val('coveredPatio'), screenedPatio:val('screenedPatio'), fence:val('fence'), wfhSpace:val('wfhSpace'), lakefront:val('lakefront'),
     garageSpaces:val('garageSpaces'), amenities:val('amenities'), gutters:val('gutters'), sprinklers:val('sprinklers'),
-    sourceUrl:val('sourceUrl'), photoUrl:val('photoUrl'), photoOverrideDataUrl:val('photoOverrideDataUrl'), photoOverrideName:val('photoOverrideName'), photoOverrideUpdatedAt:val('photoOverrideUpdatedAt'), favored:document.getElementById('favored').checked,
+    sourceUrl:val('sourceUrl'), photoUrl:val('photoUrl'), favored:document.getElementById('favored').checked,
     viewed:document.getElementById('viewed').checked, driveBy:document.getElementById('driveBy').checked, buyerNotes:val('buyerNotes'), verifyBeforeOffer:val('verifyBeforeOffer')
   }
 }
@@ -2808,175 +2771,20 @@ function decisionShortLabel(text){
 function safeImageUrl(p){
   const raw = String((p && p.photoUrl) || '').trim();
   if(!raw || raw.includes('...')) return '';
-  if(raw.startsWith('http://') || raw.startsWith('https://') || raw.startsWith('data:image/')) return raw;
+  try{
+    const u = new URL(raw);
+    if(u.protocol === 'http:' || u.protocol === 'https:') return u.href;
+  } catch(e){}
   return '';
 }
 
-function preferredImageUrl(p){
-  const override = String((p && p.photoOverrideDataUrl) || '').trim();
-  if(override && override.startsWith('data:image/')) return override;
-  return safeImageUrl(p);
-}
-
 function propertyPhotoHtml(p, extraClass=''){
-  const u = preferredImageUrl(p);
+  const u = safeImageUrl(p);
   const cls = extraClass ? ' ' + extraClass : '';
-  const hasOverride = !!String((p && p.photoOverrideDataUrl) || '').trim();
-  const alt = hasOverride ? 'Uploaded home photo' : 'Home photo';
   if(!u) return `<div class="home-photo-thumb photo-empty${cls}"><span>No photo</span></div>`;
-  return `<div class="home-photo-thumb${cls}"><img src="${escapeHtml(u)}" alt="${alt}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='grid';"><span class="photo-fallback">Photo unavailable</span></div>`;
+  return `<div class="home-photo-thumb${cls}"><img src="${escapeHtml(u)}" alt="Home photo" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='grid';"><span class="photo-fallback">Photo unavailable</span></div>`;
 }
 
-function setPhotoOverrideStatus(message){
-  const status = document.getElementById('photoOverrideStatus');
-  if(status) status.textContent = message;
-}
-
-function approximateDataUrlBytes(dataUrl){
-  const comma = String(dataUrl || '').indexOf(',');
-  const base64 = comma >= 0 ? dataUrl.slice(comma + 1) : dataUrl;
-  return Math.ceil(base64.length * 3 / 4);
-}
-
-function readFileAsDataUrl(file){
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(String(reader.result || ''));
-    reader.onerror = () => reject(reader.error || new Error('Could not read image file.'));
-    reader.readAsDataURL(file);
-  });
-}
-
-function loadImageFromDataUrl(dataUrl){
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    img.onload = () => resolve(img);
-    img.onerror = () => reject(new Error('Could not load selected image.'));
-    img.src = dataUrl;
-  });
-}
-
-async function compressPhotoOverride(file){
-  const rawDataUrl = await readFileAsDataUrl(file);
-  const img = await loadImageFromDataUrl(rawDataUrl);
-  let maxDim = 900;
-  let quality = 0.72;
-  const maxBytes = 320 * 1024;
-
-  function drawToDataUrl(dim, q){
-    const scale = Math.min(1, dim / Math.max(img.width, img.height));
-    const canvas = document.createElement('canvas');
-    canvas.width = Math.max(1, Math.round(img.width * scale));
-    canvas.height = Math.max(1, Math.round(img.height * scale));
-    const ctx = canvas.getContext('2d');
-    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-    return canvas.toDataURL('image/jpeg', q);
-  }
-
-  let dataUrl = drawToDataUrl(maxDim, quality);
-  while(approximateDataUrlBytes(dataUrl) > maxBytes && quality > 0.46){
-    quality = Math.max(0.46, quality - 0.08);
-    dataUrl = drawToDataUrl(maxDim, quality);
-  }
-  while(approximateDataUrlBytes(dataUrl) > maxBytes && maxDim > 520){
-    maxDim = Math.round(maxDim * 0.85);
-    dataUrl = drawToDataUrl(maxDim, quality);
-  }
-
-  if(approximateDataUrlBytes(dataUrl) > 450 * 1024){
-    throw new Error('Image is still too large after compression. Try cropping or choosing a smaller photo.');
-  }
-
-  return dataUrl;
-}
-
-async function handlePhotoOverrideFile(file){
-  if(!file) return;
-  if(!String(file.type || '').startsWith('image/')){
-    alert('Please choose an image file.');
-    return;
-  }
-  if(file.size > 12 * 1024 * 1024){
-    alert('That image is very large. Please choose a smaller photo or crop it first.');
-    return;
-  }
-
-  try{
-    setPhotoOverrideStatus('Compressing uploaded home photo...');
-    const dataUrl = await compressPhotoOverride(file);
-    document.getElementById('photoOverrideDataUrl').value = dataUrl;
-    document.getElementById('photoOverrideName').value = file.name || 'uploaded-home-photo.jpg';
-    document.getElementById('photoOverrideUpdatedAt').value = new Date().toISOString();
-    updatePropertyPhotoPreview();
-    setPhotoOverrideStatus('Using uploaded home photo override. Click Save/Update Property to keep it.');
-  }catch(err){
-    console.error(err);
-    alert(err && err.message ? err.message : 'Could not use that image.');
-    setPhotoOverrideStatus('Upload failed. Try a different image.');
-  }
-}
-
-function clearPhotoOverride(){
-  const data = document.getElementById('photoOverrideDataUrl');
-  const name = document.getElementById('photoOverrideName');
-  const updated = document.getElementById('photoOverrideUpdatedAt');
-  const fileInput = document.getElementById('photoOverrideFile');
-  if(data) data.value = '';
-  if(name) name.value = '';
-  if(updated) updated.value = '';
-  if(fileInput) fileInput.value = '';
-  updatePropertyPhotoPreview();
-  setPhotoOverrideStatus('Uploaded photo cleared. Home photo URL will be used if available.');
-}
-
-function initHomePhotoOverrideDropTarget(){
-  const target = document.getElementById('propertyPhotoPreview');
-  if(!target || target.dataset.dropBound === 'true') return;
-  target.dataset.dropBound = 'true';
-
-  ['dragenter','dragover'].forEach(evtName => {
-    target.addEventListener(evtName, (evt) => {
-      evt.preventDefault();
-      evt.stopPropagation();
-      target.classList.add('photo-drag-over');
-    });
-  });
-
-  ['dragleave','drop'].forEach(evtName => {
-    target.addEventListener(evtName, (evt) => {
-      evt.preventDefault();
-      evt.stopPropagation();
-      target.classList.remove('photo-drag-over');
-    });
-  });
-
-  target.addEventListener('drop', (evt) => {
-    const file = evt.dataTransfer && evt.dataTransfer.files && evt.dataTransfer.files[0];
-    handlePhotoOverrideFile(file);
-  });
-
-  target.addEventListener('click', () => {
-    const input = document.getElementById('photoOverrideFile');
-    if(input) input.click();
-  });
-
-  target.addEventListener('keydown', (evt) => {
-    if(evt.key === 'Enter' || evt.key === ' '){
-      evt.preventDefault();
-      const input = document.getElementById('photoOverrideFile');
-      if(input) input.click();
-    }
-  });
-}
-
-function initHomePhotoOverrideUploader(){
-  const input = document.getElementById('photoOverrideFile');
-  if(input && input.dataset.bound !== 'true'){
-    input.dataset.bound = 'true';
-    input.addEventListener('change', () => handlePhotoOverrideFile(input.files && input.files[0]));
-  }
-  initHomePhotoOverrideDropTarget();
-}
 function favoredBadgeHtml(p){
   return isChecked(p && p.favored) ? '<span class="fav-badge">⭐ Favored / Top Pick</span>' : '';
 }
@@ -2984,26 +2792,9 @@ function favoredBadgeHtml(p){
 function updatePropertyPhotoPreview(){
   const preview = document.getElementById('propertyPhotoPreview');
   if(!preview) return;
-  preview.outerHTML = propertyPhotoHtml({
-    photoUrl: val('photoUrl'),
-    photoOverrideDataUrl: val('photoOverrideDataUrl')
-  }, 'large');
-
+  preview.outerHTML = propertyPhotoHtml({photoUrl: val('photoUrl')}, 'large');
   const updated = document.querySelector('.photo-preview-card .home-photo-thumb');
-  if(updated){
-    updated.id = 'propertyPhotoPreview';
-    updated.setAttribute('tabindex', '0');
-    updated.setAttribute('role', 'button');
-    updated.setAttribute('aria-label', 'Home photo preview. Drop or upload an actual home photo override.');
-  }
-
-  if(val('photoOverrideDataUrl')){
-    setPhotoOverrideStatus('Using uploaded home photo override. Click Save/Update Property to keep it.');
-  }else{
-    setPhotoOverrideStatus('Optional: upload a real photo when the listing image is generic. Uploaded photo overrides the URL preview.');
-  }
-
-  initHomePhotoOverrideDropTarget();
+  if(updated) updated.id = 'propertyPhotoPreview';
 }
 
 function scoreAll(){
@@ -3650,9 +3441,6 @@ function extractListingFacts(){
     lakefront: inferLakeValue(rawText),
     sourceUrl: url,
     photoUrl: extractPhotoUrl(combined),
-    photoOverrideDataUrl: '',
-    photoOverrideName: '',
-    photoOverrideUpdatedAt: '',
     favored: false,
     viewed: false,
     driveBy: false,
@@ -3780,9 +3568,6 @@ function loadProperty(p){
   document.getElementById('sprinklers').value = p.sprinklers || 'unknown';
   document.getElementById('sourceUrl').value = p.sourceUrl || '';
   document.getElementById('photoUrl').value = p.photoUrl || '';
-  document.getElementById('photoOverrideDataUrl').value = p.photoOverrideDataUrl || '';
-  document.getElementById('photoOverrideName').value = p.photoOverrideName || '';
-  document.getElementById('photoOverrideUpdatedAt').value = p.photoOverrideUpdatedAt || '';
   document.getElementById('favored').checked = isChecked(p.favored);
   updatePropertyPhotoPreview();
   document.getElementById('viewed').checked = isChecked(p.viewed);
@@ -4084,16 +3869,13 @@ function clearSavedProperties(){
 }
 
 function clearPropertyForm(){
-  ['address','community','sqft','builtYear','listingPrice','offerPrice','hoaMonthly','cddAnnual','bedrooms','fullBaths','halfBaths','sourceUrl','photoUrl','photoOverrideDataUrl','photoOverrideName','photoOverrideUpdatedAt','buyerNotes','verifyBeforeOffer'].forEach(id=>document.getElementById(id).value='');
+  ['address','community','sqft','builtYear','listingPrice','offerPrice','hoaMonthly','cddAnnual','bedrooms','fullBaths','halfBaths','sourceUrl','photoUrl','buyerNotes','verifyBeforeOffer'].forEach(id=>document.getElementById(id).value='');
   ['oneStory','coveredPatio','screenedPatio','fence','wfhSpace','garageSpaces','amenities','gutters','sprinklers'].forEach(id=>document.getElementById(id).value='unknown');
   document.getElementById('lakefront').value='none';
   document.getElementById('propertySelect').value='';
   document.getElementById('favored').checked=false;
   document.getElementById('viewed').checked=false;
   document.getElementById('driveBy').checked=false;
-  const photoOverrideFile = document.getElementById('photoOverrideFile');
-  if(photoOverrideFile) photoOverrideFile.value='';
-  setPhotoOverrideStatus('Optional: upload a real photo when the listing image is generic. Uploaded photo overrides the URL preview.');
   updatePropertyPhotoPreview();
   scoreCurrent();
 }
@@ -4865,7 +4647,6 @@ enableDropdownAndDatalistReselect();
 loadCriteriaFromLocalStorage();
 populateSelect();
 updatePropertyPhotoPreview();
-initHomePhotoOverrideUploader();
 initPropertyNoteAutosize();
 scoreAll();
 initTabbedLayout();
